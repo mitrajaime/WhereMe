@@ -33,7 +33,7 @@ namespace WhereMe
 
         public void OnMapReady(GoogleMap googleMap)
         {
-            var mapStyle = MapStyleOptions.LoadRawResourceStyle(this, Resource.Drawable.mapStyles);
+            var mapStyle = MapStyleOptions.LoadRawResourceStyle(this, Resource.Raw.mapStyles);
             googleMap.SetMapStyle(mapStyle);
             map = googleMap;
 
