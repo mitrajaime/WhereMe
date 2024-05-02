@@ -1,6 +1,7 @@
 ﻿using Android;
 using Android.App;
 using Android.Gms.Maps;
+using Android.Gms.Maps.Model;
 using Android.OS;
 using Android.Runtime;
 using AndroidX.AppCompat.App;
@@ -32,11 +33,11 @@ namespace WhereMe
 
         public void OnMapReady(GoogleMap googleMap)
         {
-            //var mapStyle = MapStyleOptions.LoadRawResourceStyle(this, Resource.Raw.mapStyle);
-            //googleMap.SetMapStyle(mapStyle);
+            var mapStyle = MapStyleOptions.LoadRawResourceStyle(this, Resource.Drawable.mapStyles);
+            googleMap.SetMapStyle(mapStyle);
             map = googleMap;
 
-            //map.UiSettings.ZoomControlsEnabled = true;
+            map.UiSettings.ZoomControlsEnabled = true;
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
