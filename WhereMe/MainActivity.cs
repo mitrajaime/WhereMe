@@ -8,6 +8,7 @@ using Android.Runtime;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.Core.App;
+using WhereMe.Helpers;
 
 namespace WhereMe
 {
@@ -20,11 +21,12 @@ namespace WhereMe
             Manifest.Permission.AccessFineLocation,
         };
         ImageButton locationButton;
+        TextView placeTextView;
         GoogleMap map;
         IFusedLocationProviderClient flpc;
         Android.Locations.Location myLastLocation;
         private LatLng myPosition;
-
+        MapHelpers mapHelper = new MapHelpers();   
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -35,7 +37,7 @@ namespace WhereMe
 
             SupportMapFragment mapFragment = (SupportMapFragment)SupportFragmentManager.FindFragmentById(Resource.Id.map);
             mapFragment.GetMapAsync(this);
-
+            placeTextView = FindViewById<TextView>(Resource.Id.placeTextView);
             locationButton = FindViewById<ImageButton>(Resource.Id.locationButton);
 
             locationButton.Click += LocationButton_Click;
@@ -56,6 +58,34 @@ namespace WhereMe
             map = googleMap;
 
             map.UiSettings.ZoomControlsEnabled = true;
+            map.CameraMoveStarted += Map_CameraMoveStarted;
+            map.CameraIdle += Map_CameraIdle;
+            if (checkPermission())
+            {
+                displayLocationAsync();
+            }
+        }
+
+        private async void Map_CameraIdle(object sender, System.EventArgs e)
+        {
+            var position = map.CameraPosition.Target;
+            string key = Resources.GetString(Resource.String.mapkey);
+            string address = await mapHelper.FindCoordinateAddress(position, key);
+
+            if (!string.IsNullOrEmpty(address))
+            {
+                placeTextView.Text = address;
+
+            }
+            else
+            {
+                placeTextView.Text = "Where to?";
+            }
+        }
+
+        private void Map_CameraMoveStarted(object sender, GoogleMap.CameraMoveStartedEventArgs e)
+        {
+            placeTextView.Text = "Setting new location";
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
