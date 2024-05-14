@@ -3,11 +3,13 @@ using Android.App;
 using Android.Gms.Location;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
+using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.Core.App;
+using System.Collections.Generic;
 using WhereMe.Helpers;
 
 namespace WhereMe
@@ -66,21 +68,37 @@ namespace WhereMe
             }
         }
 
+        IList<Address> addresses = new List<Address>();
+        Geocoder geocoder;
         private async void Map_CameraIdle(object sender, System.EventArgs e)
         {
             var position = map.CameraPosition.Target;
-            string key = Resources.GetString(Resource.String.mapkey);
-            string address = await mapHelper.FindCoordinateAddress(position, key);
-
-            if (!string.IsNullOrEmpty(address))
+            geocoder = new Geocoder(this);
+            var addresses = await geocoder.GetFromLocationAsync(position.Latitude, position.Longitude, 1);
+            if (addresses != null && addresses.Count > 0)
             {
-                placeTextView.Text = address;
-
+                Address address = addresses[0];
+                string formattedAddress = address.GetAddressLine(0);
+                placeTextView.Text = formattedAddress.ToUpper();
             }
             else
             {
-                placeTextView.Text = "Where to?";
+                placeTextView.Text = "Where to now?";
             }
+
+            //var position = map.CameraPosition.Target;
+            //string key = Resources.GetString(Resource.String.mapkey);
+            //string address = await mapHelper.FindCoordinateAddress(position, key);
+
+            //if (!string.IsNullOrEmpty(address))
+            //{
+            //    placeTextView.Text = address;
+
+            //}
+            //else
+            //{
+            //    placeTextView.Text = "Where to?";
+            //}
         }
 
         private void Map_CameraMoveStarted(object sender, GoogleMap.CameraMoveStartedEventArgs e)
